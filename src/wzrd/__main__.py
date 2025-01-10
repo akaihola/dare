@@ -71,7 +71,8 @@ def main():
     if not script_name:
         raise ValueError("Script name not found in the response")
 
-    # Page the entire LLM response for user confirmation
+    if not script_content.strip():
+        raise ValueError("Script content is empty or whitespace-only")
     click.echo_via_pager(script)
 
     # Write the script to a file
