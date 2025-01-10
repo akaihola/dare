@@ -54,7 +54,7 @@ def main():
             input("--More--")
 
     # Run the script using uvx
-    subprocess.run(["uvx", "-c", script])
+    subprocess.run(["uvx", script])
 
 
 if __name__ == "__main__":
