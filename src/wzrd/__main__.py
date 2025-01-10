@@ -60,7 +60,7 @@ def main():
     for line in script.splitlines():
         if line.startswith('``` py title="'):
             script_name = line.split('"')[1]
-        elif line.startswith("```") and in_content:
+        elif line.startswith("```") and not in_content:
             in_content = True
         elif line.startswith("```") and in_content:
             in_content = False
@@ -71,8 +71,8 @@ def main():
     if not script_name:
         raise ValueError("Script name not found in the response")
 
-    # Page the script for user confirmation
-    click.echo_via_pager(script_content)
+    # Page the entire LLM response for user confirmation
+    click.echo_via_pager(script)
 
     # Write the script to a file
     with open(script_name, "w") as f:
