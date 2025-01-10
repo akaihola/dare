@@ -1,8 +1,8 @@
 import argparse
 import subprocess
 import textwrap
-import pyreadline3
 import llm
+import click
 
 
 def main():
@@ -41,17 +41,11 @@ def main():
     model = llm.get_model()
 
     # Generate the script using the model
-    response = model.prompt(system_prompt + prompt)
+    response = model.prompt(system_prompt + prompt, stream=False)
     script = response.text()
 
     # Page the script for user confirmation
-    readline = pyreadline3.Readline()
-    lines = script.split("\n")
-    height = readline.get_screen_size()[0] - 1
-    for i in range(0, len(lines), height):
-        print("\n".join(lines[i : i + height]))
-        if i + height < len(lines):
-            input("--More--")
+    click.echo_via_pager(script)
 
     # Run the script using uvx
     subprocess.run(["uvx", script])
