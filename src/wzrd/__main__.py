@@ -85,7 +85,8 @@ def main(prompt, max_tokens, show_config):
         click.echo(f"Processing line: {line}")
         if line.startswith('``` py title="'):
             script_name = line.split('"')[1]
-        elif line.startswith("``` py title=") or line.startswith("```"):
+            in_content = True
+        elif line.startswith("```"):
             in_content = not in_content
         elif in_content:
             script_content.append(line)
