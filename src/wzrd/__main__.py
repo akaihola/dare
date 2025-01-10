@@ -58,11 +58,11 @@ def main():
     script_content = []
     in_content = False
     for line in script.splitlines():
-        if line.startswith("# script-name ="):
-            script_name = line.split("=")[1].strip().strip('"')
-        elif line.startswith("# /// content"):
+        if line.startswith('``` py title="'):
+            script_name = line.split('"')[1]
+        elif line.startswith("```") and in_content:
             in_content = True
-        elif line.startswith("# ///") and in_content:
+        elif line.startswith("```") and in_content:
             in_content = False
         elif in_content:
             script_content.append(line)
