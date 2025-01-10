@@ -79,8 +79,8 @@ def main():
         f.write(script_content)
 
     # Run the script using uvx
-    # Run the script using uv
-    subprocess.run(["uv", script_name])
+    # Run the script using uv run
+    subprocess.run(["uv", "run", script_name])
 
 
 if __name__ == "__main__":
