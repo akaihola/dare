@@ -74,6 +74,7 @@ def main(prompt, max_tokens, show_config):
         click.echo(f"Effective configuration: {effective_config}")
         return
     response = model.prompt(system_prompt + prompt, stream=False, max_tokens=max_tokens)
+    click.echo(f"LLM Response: {response.text()}")
     script = response.text()
 
     # Extract script name and content
@@ -81,15 +82,15 @@ def main(prompt, max_tokens, show_config):
     script_content = []
     in_content = False
     for line in script.splitlines():
+        click.echo(f"Processing line: {line}")
         if line.startswith('``` py title="'):
             script_name = line.split('"')[1]
-        elif line.startswith("```") and not in_content:
-            in_content = True
-        elif line.startswith("```") and in_content:
-            in_content = False
+        elif line.startswith("``` py title=") or line.startswith("```"):
+            in_content = not in_content
         elif in_content:
             script_content.append(line)
     script_content = "\n".join(script_content)
+    click.echo(f"Extracted script content: {script_content}")
 
     click.echo_via_pager(script)
 
