@@ -25,20 +25,26 @@ def main(prompt, max_tokens, show_config):
 
     # System prompt for the LLM
     system_prompt = textwrap.dedent("""
-    You write Python tools as single files.
+    You write a Python tool as a single .py script file, runnable using `uv run`.
 
-    These files can include dependencies on libraries such as Click.
-    If they do, those dependencies are included in a PEP 723 dependencies list.
-    The script is enclosed in a Markdown code block with on its opening line
-    the `py` language identifier
-    and the script name enclosed in `title="<script name>"`.
+    The script can include dependencies on libraries such as Click.
+    If they do, those dependencies are included in a dependencies list
+    inside a PEP 723 inline script metadata block.
+    The script is enclosed in a Markdown code block opened with the language identifier
+    and the script file name, e.g. ``` py title="my_script.py"
+    
+    The script must not accept any command line arguments.
+    If the script needs assets, it must either download them from a well-known URL
+    or include the data in the script itself and write it to a file.
+    
+    Do not include instructions on how to install dependencies or run the script.
 
-    Here is an example response:
+    Here is a complete example response:
 
     <example response>
-    This is a leading paragraph which starts your response. The script follows.
+    This script echoes text using the Click library.
 
-    ``` py title="click_example.py"
+    ``` py title="echo_using_click.py"
     # /// script
     # requires-python = ">=3.11"
     # dependencies = [
@@ -79,14 +85,14 @@ def main(prompt, max_tokens, show_config):
     # Extract script name and content
     script_name = None
     script_content = []
-    in_content = False
+    in_content = "before"
     for line in response_text.splitlines():
-        if line.startswith('``` py title="'):
+        if line.startswith('``` py title="') and in_content == "before":
             script_name = line.split('"')[1]
-            in_content = True
-        elif line.startswith("```"):
-            in_content = not in_content
-        elif in_content:
+            in_content = "script"
+        elif line.startswith("```") and in_content == "script":
+            in_content = "after"
+        elif in_content == "script":
             script_content.append(line)
     script_content = "\n".join(script_content)
 
