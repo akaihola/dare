@@ -74,13 +74,13 @@ def main(prompt, max_tokens, show_config):
         click.echo(f"Effective configuration: {effective_config}")
         return
     response = model.prompt(system_prompt + prompt, stream=False, max_tokens=max_tokens)
-    script = response.text()
+    response_text = response.text()
 
     # Extract script name and content
     script_name = None
     script_content = []
     in_content = False
-    for line in script.splitlines():
+    for line in response_text.splitlines():
         if line.startswith('``` py title="'):
             script_name = line.split('"')[1]
             in_content = True
@@ -90,14 +90,17 @@ def main(prompt, max_tokens, show_config):
             script_content.append(line)
     script_content = "\n".join(script_content)
 
-    click.echo_via_pager(script)
+    # Page the script content using click
+    click.echo_via_pager(response_text)
+    if not click.confirm("Do you want to run the generated script?"):
+        click.echo("Script execution cancelled.")
+        return
 
     if not script_name:
         raise ValueError("Script name not found in the response")
 
     if not script_content.strip():
         raise ValueError("Script content is empty or whitespace-only")
-    click.echo_via_pager(script)
 
     # Write the script to a file
     with open(script_name, "w") as f:
