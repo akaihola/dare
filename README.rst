@@ -13,7 +13,7 @@ Features
 Installation
 ------------
 
-To install wzrd, you need to have Python 3.12 or higher. You can install the package using Flit::
+To install wzrd, you need to have Python 3.11 or higher. You can install the package using Flit::
 
     pip install flit
     flit install
