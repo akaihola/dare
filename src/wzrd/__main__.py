@@ -68,6 +68,8 @@ def main():
             script_content.append(line)
     script_content = "\n".join(script_content)
 
+    click.echo_via_pager(script)
+
     if not script_name:
         raise ValueError("Script name not found in the response")
 
