@@ -1,22 +1,27 @@
-import argparse
 import subprocess
 import textwrap
 import llm
 import click
+import tomllib
+import os
 
 
-def main():
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(
-        description="A command line tool to generate Python scripts using LLM"
-    )
-    parser.add_argument(
-        "prompt", nargs=argparse.REMAINDER, help="The prompt to generate the script"
-    )
-    args = parser.parse_args()
-
-    # Join all positional arguments into a prompt
-    prompt = " ".join(args.prompt)
+@click.command()
+@click.argument("prompt", nargs=-1)
+@click.option(
+    "--max-tokens",
+    type=int,
+    default=None,
+    help="Maximum number of tokens for the LLM response",
+)
+@click.option(
+    "--show-config",
+    is_flag=True,
+    help="Show the effective configuration and exit",
+)
+def main(prompt, max_tokens, show_config):
+    """A command line tool to generate Python scripts using LLM"""
+    prompt = " ".join(prompt)
 
     # System prompt for the LLM
     system_prompt = textwrap.dedent("""
@@ -49,8 +54,26 @@ def main():
     # Get the default model
     model = llm.get_model()
 
-    # Generate the script using the model
-    response = model.prompt(system_prompt + prompt, stream=False)
+    # Read configuration from wzrd.toml
+    config_path = os.path.join(os.path.expanduser("~"), ".config", "wzrd", "wzrd.toml")
+    if os.path.exists(config_path):
+        with open(config_path, "rb") as f:
+            config = tomllib.load(f)
+        config_max_tokens = config.get("max-tokens")
+    else:
+        config_max_tokens = None
+
+    # Use CLI argument if provided, otherwise use config file value
+    max_tokens = max_tokens or config_max_tokens
+
+    # Show the effective configuration and exit if --show-config is used
+    if show_config:
+        effective_config = {
+            "max_tokens": max_tokens,
+        }
+        click.echo(f"Effective configuration: {effective_config}")
+        return
+    response = model.prompt(system_prompt + prompt, stream=False, max_tokens=max_tokens)
     script = response.text()
 
     # Extract script name and content
