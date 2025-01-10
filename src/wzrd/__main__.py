@@ -1,13 +1,23 @@
-import sys
+import argparse
 import subprocess
 import textwrap
-import pydoc
-from llm import LLM
+import pyreadline3
+import llm
+
 
 def main():
-    # Join all command line arguments into a prompt
-    prompt = " ".join(sys.argv[1:])
-    
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(
+        description="A command line tool to generate Python scripts using LLM"
+    )
+    parser.add_argument(
+        "prompt", nargs=argparse.REMAINDER, help="The prompt to generate the script"
+    )
+    args = parser.parse_args()
+
+    # Join all positional arguments into a prompt
+    prompt = " ".join(args.prompt)
+
     # System prompt for the LLM
     system_prompt = textwrap.dedent("""
     You write Python tools as single files. They always start with this comment:
@@ -27,17 +37,25 @@ def main():
     # ///
     """)
 
-    # Create an instance of the LLM
-    llm = LLM()
+    # Get the default model
+    model = llm.get_model()
 
-    # Generate the script using the LLM
-    script = llm.generate(system_prompt + prompt)
+    # Generate the script using the model
+    response = model.prompt(system_prompt + prompt)
+    script = response.text()
 
     # Page the script for user confirmation
-    pydoc.pager(script)
+    readline = pyreadline3.Readline()
+    lines = script.split("\n")
+    height = readline.get_screen_size()[0] - 1
+    for i in range(0, len(lines), height):
+        print("\n".join(lines[i : i + height]))
+        if i + height < len(lines):
+            input("--More--")
 
     # Run the script using uvx
     subprocess.run(["uvx", "-c", script])
+
 
 if __name__ == "__main__":
     main()
