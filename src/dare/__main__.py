@@ -102,7 +102,7 @@ def main(prompt, max_tokens, show_config):
 
     # Page the script content using rich syntax highlighting
     console = Console()
-    syntax = Syntax(response_text, "markdown", theme="monokai", line_numbers=True)
+    syntax = Syntax(response_text, "markdown", theme="monokai", line_numbers=False)
     with console.pager():
         console.print(syntax)
     if not click.confirm("Do you want to run the generated script?"):
