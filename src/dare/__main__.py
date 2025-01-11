@@ -4,6 +4,8 @@ import llm
 import click
 import tomllib
 import os
+from rich.console import Console
+from rich.syntax import Syntax
 
 
 @click.command()
@@ -98,8 +100,11 @@ def main(prompt, max_tokens, show_config):
             script_content.append(line)
     script_content = "\n".join(script_content)
 
-    # Page the script content using click
-    click.echo_via_pager(response_text)
+    # Page the script content using rich syntax highlighting
+    console = Console()
+    syntax = Syntax(response_text, "markdown", theme="monokai", line_numbers=True)
+    with console.pager():
+        console.print(syntax)
     if not click.confirm("Do you want to run the generated script?"):
         click.echo("Script execution cancelled.")
         return
