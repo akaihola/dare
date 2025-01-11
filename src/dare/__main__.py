@@ -23,7 +23,13 @@ from rich.syntax import Syntax
     help="Show the effective configuration and exit",
 )
 def main(prompt, max_tokens, show_config):
-    """A command line tool to generate Python scripts using LLM"""
+    """A command line tool to generate Python scripts using LLM.
+
+    Args:
+        prompt: The text prompt to send to the LLM
+        max_tokens: Maximum number of tokens for the LLM response
+        show_config: If True, display current configuration and exit
+    """
     prompt = " ".join(prompt)
 
     # Check for piped or redirected input
@@ -91,7 +97,7 @@ def main(prompt, max_tokens, show_config):
     response = model.prompt(system_prompt + prompt, stream=False, max_tokens=max_tokens)
     response_text = response.text()
 
-    # Extract script name and content
+    # Extract script name and content from the markdown-formatted response
     script_name = None
     script_content = []
     in_content = "before"
@@ -130,7 +136,7 @@ def main(prompt, max_tokens, show_config):
         )
         return
 
-    # Run the script using uv run
+    # Execute the generated script using uv run
     subprocess.run(["uv", "run", script_name])
 
 
