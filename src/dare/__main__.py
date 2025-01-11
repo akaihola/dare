@@ -101,9 +101,9 @@ def main(prompt, max_tokens, show_config):
     script_content = "\n".join(script_content)
 
     # Page the script content using rich syntax highlighting
-    console = Console()
+    console = Console(force_terminal=True)
     syntax = Syntax(response_text, "markdown", theme="monokai", line_numbers=False)
-    with console.pager():
+    with console.pager(styles=True):
         console.print(syntax)
     if not click.confirm("Do you want to run the generated script?"):
         click.echo("Script execution cancelled.")
