@@ -34,8 +34,10 @@ def main(prompt, max_tokens, show_config):
     and the script file name, e.g. ``` py title="my_script.py"
     
     The script must not accept any command line arguments.
-    If the script needs assets, it must either download them from a well-known URL
-    or include the data in the script itself and write it to a file.
+    If the script needs assets, prefer to include the data in the script itself
+    and write it to a file if necessary.
+    Only as a last resort, the script can download URLs which have known to have existed
+    for at least five years.
     
     Do not include instructions on how to install dependencies or run the script.
 
