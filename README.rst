@@ -1,7 +1,10 @@
 dare
 ====
 
-dare is a command line tool that generates Python scripts using a Language Learning Model (LLM). It takes command line arguments as input, constructs a prompt, and uses the LLM to generate a standalone Python script to solve the request.
+dare is a command line tool that generates Python scripts using a Large Language Model (LLM).
+It takes command line arguments as input, constructs a prompt,
+and uses the LLM to generate a standalone Python script to solve the request.
+After showing the generated script, dare asks if you want to run it.
 
 Features
 --------
@@ -13,10 +16,21 @@ Features
 Installation
 ------------
 
-To install dare, you need to have Python 3.11 or higher. You can install the package using Flit::
+To install dare, you need to have Python 3.11 or higher.
+You can install the package using e.g. ``pip``, ``uv`` or ``pipx``::
 
-    pip install flit
-    flit install
+    pip install dare
+    uv pip install dare
+    uv tool install dare
+    pipx install dare
+
+Then simply run::
+
+    dare <your prompt here>
+
+Or, you can skip installing and just run it using ``uvx``::
+
+    uvx dare <your prompt here>
 
 Usage
 -----
