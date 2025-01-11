@@ -1,7 +1,7 @@
-wzrd
+dare
 ====
 
-wzrd is a command line tool that generates Python scripts using a Language Learning Model (LLM). It takes command line arguments as input, constructs a prompt, and uses the LLM to generate a standalone Python script to solve the request.
+dare is a command line tool that generates Python scripts using a Language Learning Model (LLM). It takes command line arguments as input, constructs a prompt, and uses the LLM to generate a standalone Python script to solve the request.
 
 Features
 --------
@@ -13,7 +13,7 @@ Features
 Installation
 ------------
 
-To install wzrd, you need to have Python 3.11 or higher. You can install the package using Flit::
+To install dare, you need to have Python 3.11 or higher. You can install the package using Flit::
 
     pip install flit
     flit install
@@ -21,23 +21,23 @@ To install wzrd, you need to have Python 3.11 or higher. You can install the pac
 Usage
 -----
 
-To use wzrd, simply run the command followed by your prompt::
+To use dare, simply run the command followed by your prompt::
 
-    wzrd <your prompt here>
+    dare <your prompt here>
 
 For example::
 
-    wzrd create a script to read a CSV file and print the contents
+    dare create a script to read a CSV file and print the contents
 
 Development
 -----------
 
-To contribute to the development of wzrd, follow these steps:
+To contribute to the development of dare, follow these steps:
 
 1. Clone the repository::
 
     git clone <repository-url>
-    cd wzrd
+    cd dare
 
 2. Install the dependencies::
 

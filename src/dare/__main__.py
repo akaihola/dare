@@ -62,8 +62,8 @@ def main(prompt, max_tokens, show_config):
     # Get the default model
     model = llm.get_model()
 
-    # Read configuration from wzrd.toml
-    config_path = os.path.join(os.path.expanduser("~"), ".config", "wzrd", "wzrd.toml")
+    # Read configuration from dare.toml
+    config_path = os.path.join(os.path.expanduser("~"), ".config", "dare", "dare.toml")
     if os.path.exists(config_path):
         with open(config_path, "rb") as f:
             config = tomllib.load(f)
