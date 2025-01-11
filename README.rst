@@ -7,7 +7,7 @@ Features
 --------
 
 - Generates Python scripts based on command line prompts
-- Uses the `llm` package from `llm.datasette.io`
+- Uses the ``llm`` package from ``llm.datasette.io``
 - Minimal external dependencies
 
 Installation
@@ -32,7 +32,7 @@ For example::
 Example run
 -----------
 
-Here's an example run of dare (redacting part of the long ouput):
+Here's an example run of dare (redacting part of the long ouput)::
 
     $ dare search for toots about uv and LLMs \
            after registering the app and logging in \
