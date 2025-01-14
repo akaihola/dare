@@ -110,10 +110,6 @@ def main(prompt, max_tokens, show_config):
     syntax = Syntax(response_text, "markdown", theme="monokai", line_numbers=False)
     with console.pager(styles=True):
         console.print(syntax)
-    if not click.confirm("Do you want to run the generated script?"):
-        click.echo("Script execution cancelled.")
-        return
-
     if not script_name:
         raise ValueError("Script name not found in the response")
 
@@ -124,7 +120,16 @@ def main(prompt, max_tokens, show_config):
     with open(script_name, "w") as f:
         f.write(script_content)
 
-    # Run the script using uvx
+    if os.isatty(sys.stdin.fileno()):
+        if not click.confirm("Do you want to run the generated script?"):
+            click.echo("Script execution cancelled.")
+            return
+    else:
+        click.echo(
+            f"To run the generated script, use the following command:\nuv run {script_name}"
+        )
+        return
+
     # Run the script using uv run
     subprocess.run(["uv", "run", script_name])
 
