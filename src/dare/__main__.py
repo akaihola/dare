@@ -33,7 +33,7 @@ def main(prompt, max_tokens, show_config):
     prompt = " ".join(prompt)
 
     # Check for piped or redirected input
-    if not os.isatty(0):
+    if not sys.stdin.isatty():
         piped_input = sys.stdin.read()
         if piped_input:
             prompt += "\n\n" + piped_input
@@ -126,7 +126,7 @@ def main(prompt, max_tokens, show_config):
     with open(script_name, "w") as f:
         f.write(script_content)
 
-    if os.isatty(sys.stdin.fileno()):
+    if sys.stdin.isatty():
         if not click.confirm("Do you want to run the generated script?"):
             click.echo("Script execution cancelled.")
             return
