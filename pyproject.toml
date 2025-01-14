@@ -19,10 +19,13 @@ dependencies = [
 [project.scripts]
 dare = "dare.__main__:main"
 
-[project.optional-dependencies]
-test = [
+[dependency-groups]
+dev = [
     "darker @ git+https://github.com/akaihola/darker.git@master",
-    "graylint @ git+https://github.com/akaihola/graylint.git@darkgraylib-2.2.0"
+    "graylint @ git+https://github.com/akaihola/graylint.git@darkgraylib-2.2.0",
+    "llm-openrouter",
+    "mypy",
+    "pytest",
 ]
 
 [tool.darker]
@@ -33,6 +36,7 @@ src = ["src"]
 [tool.graylint]
 lint = [
     "ruff check --output-format=concise",
+    "mypy",
 ]
 revision = "main..."
 src = ["src"]
