@@ -22,7 +22,12 @@ from rich.syntax import Syntax
     is_flag=True,
     help="Show the effective configuration and exit",
 )
-def main(prompt, max_tokens, show_config):
+@click.option(
+    "--stream",
+    is_flag=True,
+    help="Stream the LLM response incrementally",
+)
+def main(prompt, max_tokens, show_config, stream):
     """A command line tool to generate Python scripts using LLM.
 
     Args:
@@ -94,28 +99,73 @@ def main(prompt, max_tokens, show_config):
         }
         click.echo(f"Effective configuration: {effective_config}")
         return
-    response = model.prompt(system_prompt + prompt, stream=False, max_tokens=max_tokens)
-    response_text = response.text()
+    # Set up console for output
+    console = Console(force_terminal=True)
 
-    # Extract script name and content from the markdown-formatted response
-    script_name = None
-    script_content = []
-    in_content = "before"
-    for line in response_text.splitlines():
-        if line.startswith('``` py title="') and in_content == "before":
-            script_name = line.split('"')[1]
-            in_content = "script"
-        elif line.startswith("```") and in_content == "script":
-            in_content = "after"
-        elif in_content == "script":
-            script_content.append(line)
+    if stream:
+        response = model.prompt(
+            system_prompt + prompt, stream=True, max_tokens=max_tokens
+        )
+        # Initialize variables for streaming
+        script_name = None
+        script_content = []
+        in_content = "before"
+        buffer = []
+
+        for chunk in response:
+            buffer.append(chunk)
+            # Try to process complete lines
+            if "\n" in chunk:
+                lines = "".join(buffer).splitlines(True)
+                # Keep the last partial line in buffer
+                *complete_lines, buffer = lines
+                buffer = [buffer]
+
+                for line in complete_lines:
+                    console.print(line, end="")
+                    if line.startswith('``` py title="') and in_content == "before":
+                        script_name = line.split('"')[1]
+                        in_content = "script"
+                    elif line.startswith("```") and in_content == "script":
+                        in_content = "after"
+                    elif in_content == "script":
+                        script_content.append(line.rstrip("\n"))
+
+        # Process any remaining content
+        if buffer:
+            last_line = "".join(buffer)
+            console.print(last_line, end="")
+            if in_content == "script" and not last_line.startswith("```"):
+                script_content.append(last_line.rstrip("\n"))
+
+        script_content = "\n".join(script_content)
+
+    else:
+        response = model.prompt(
+            system_prompt + prompt, stream=False, max_tokens=max_tokens
+        )
+        response_text = response.text()
+
+        # Extract script name and content from the markdown-formatted response
+        script_name = None
+        script_content = []
+        in_content = "before"
+
+        # Page the script content using rich syntax highlighting
+        syntax = Syntax(response_text, "markdown", theme="monokai", line_numbers=False)
+        with console.pager(styles=True):
+            console.print(syntax)
+
+        for line in response_text.splitlines():
+            if line.startswith('``` py title="') and in_content == "before":
+                script_name = line.split('"')[1]
+                in_content = "script"
+            elif line.startswith("```") and in_content == "script":
+                in_content = "after"
+            elif in_content == "script":
+                script_content.append(line)
     script_content = "\n".join(script_content)
 
-    # Page the script content using rich syntax highlighting
-    console = Console(force_terminal=True)
-    syntax = Syntax(response_text, "markdown", theme="monokai", line_numbers=False)
-    with console.pager(styles=True):
-        console.print(syntax)
     if not script_name:
         raise ValueError("Script name not found in the response")
 
