@@ -1,12 +1,12 @@
 import subprocess
 import textwrap
+from typing import Iterator
 import llm
 import click
 import tomllib
 import os
 import sys
 from rich.console import Console
-from rich.syntax import Syntax
 
 
 @click.command()
@@ -99,72 +99,61 @@ def main(prompt, max_tokens, show_config, stream):
         }
         click.echo(f"Effective configuration: {effective_config}")
         return
+
+    def get_response_stream(model, prompt: str, stream: bool = False) -> Iterator[str]:
+        """Helper to get response chunks whether streaming or not."""
+        response = model.prompt(prompt, stream=stream, max_tokens=max_tokens)
+        if stream:
+            yield from response
+        else:
+            yield response.text()
+
     # Set up console for output
     console = Console(force_terminal=True)
 
-    if stream:
-        response = model.prompt(
-            system_prompt + prompt, stream=True, max_tokens=max_tokens
-        )
-        # Initialize variables for streaming
-        script_name = None
-        script_content = []
-        in_content = "before"
-        buffer = []
+    response = get_response_stream(model, system_prompt + prompt, stream=stream)
 
-        for chunk in response:
-            buffer.append(chunk)
-            # Try to process complete lines
-            if "\n" in chunk:
-                lines = "".join(buffer).splitlines(True)
-                # Keep the last partial line in buffer
-                *complete_lines, buffer = lines
-                buffer = [buffer]
+    # Initialize variables for streaming
+    script_name = None
+    script_content = []
+    in_content = "before"
+    buffer = []
+    collected_output = []
 
-                for line in complete_lines:
-                    console.print(line, end="")
-                    if line.startswith('``` py title="') and in_content == "before":
-                        script_name = line.split('"')[1]
-                        in_content = "script"
-                    elif line.startswith("```") and in_content == "script":
-                        in_content = "after"
-                    elif in_content == "script":
-                        script_content.append(line.rstrip("\n"))
+    for chunk in response:
+        buffer.append(chunk)
+        # Try to process complete lines
+        if "\n" in chunk:
+            lines = "".join(buffer).splitlines(True)
+            # Keep the last partial line in buffer
+            *complete_lines, buffer = lines
+            buffer = [buffer]
 
-        # Process any remaining content
-        if buffer:
-            last_line = "".join(buffer)
-            console.print(last_line, end="")
-            if in_content == "script" and not last_line.startswith("```"):
-                script_content.append(last_line.rstrip("\n"))
+            for line in complete_lines:
+                collected_output.append(line)
+                console.print(line, end="")
+                if line.startswith('``` py title="') and in_content == "before":
+                    script_name = line.split('"')[1]
+                    in_content = "script"
+                    script_content = []  # Reset script content
+                elif line.startswith("```") and in_content == "script":
+                    in_content = "after"
+                elif in_content == "script":
+                    script_content.append(line)
 
-        script_content = "\n".join(script_content)
+    # Process any remaining content
+    if buffer:
+        last_line = "".join(buffer)
+        collected_output.append(last_line)
+        console.print(last_line, end="")
+        if in_content == "script" and not last_line.startswith("```"):
+            script_content.append(last_line)
 
-    else:
-        response = model.prompt(
-            system_prompt + prompt, stream=False, max_tokens=max_tokens
-        )
-        response_text = response.text()
+    # Print any remaining output
+    full_output = "".join(collected_output)
+    console.print(full_output)
 
-        # Extract script name and content from the markdown-formatted response
-        script_name = None
-        script_content = []
-        in_content = "before"
-
-        # Page the script content using rich syntax highlighting
-        syntax = Syntax(response_text, "markdown", theme="monokai", line_numbers=False)
-        with console.pager(styles=True):
-            console.print(syntax)
-
-        for line in response_text.splitlines():
-            if line.startswith('``` py title="') and in_content == "before":
-                script_name = line.split('"')[1]
-                in_content = "script"
-            elif line.startswith("```") and in_content == "script":
-                in_content = "after"
-            elif in_content == "script":
-                script_content.append(line)
-    script_content = "\n".join(script_content)
+    script_content = "".join(script_content)  # Changed from join with newlines
 
     if not script_name:
         raise ValueError("Script name not found in the response")
