@@ -1,41 +1,14 @@
-import dataclasses
 import subprocess
 import sys
 import textwrap
-from typing import Any, Iterator, Optional, cast
+from typing import Any, Iterator, cast
 
 import click
 import llm
 from typed_settings import click_options
 from rich.console import Console
 
-
-@dataclasses.dataclass
-class Settings:
-    max_tokens: Optional[int] = dataclasses.field(
-        default=None,
-        metadata={
-            "typed-settings": {"help": "Maximum number of tokens for the LLM response"}
-        },
-    )
-    show_config: bool = dataclasses.field(
-        default=False,
-        metadata={
-            "typed-settings": {"help": "Show the effective configuration and exit"}
-        },
-    )
-    no_stream: bool = dataclasses.field(
-        default=False,
-        metadata={
-            "typed-settings": {"help": "Disable streaming of LLM response"}
-        },
-    )
-    fix: Optional[str] = dataclasses.field(
-        default=None,
-        metadata={
-            "typed-settings": {"help": "Fix errors in Python script (format: <PY_FILEPATH [ARGS...]>)"}
-        },
-    )
+from dare.settings import Settings
 
 
 def read_file(filepath: str) -> str:
