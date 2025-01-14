@@ -23,9 +23,9 @@ class Settings:
             "typed-settings": {"help": "Show the effective configuration and exit"}
         },
     )
-    stream: bool = dataclasses.field(
+    no_stream: bool = dataclasses.field(
         default=False,
-        metadata={"typed-settings": {"help": "Stream the LLM response incrementally"}},
+        metadata={"typed-settings": {"help": "Disable streaming of LLM response"}},
     )
 
 
@@ -71,7 +71,7 @@ def main(settings: Settings, prompt_parts: tuple[str, ...]):
     console = Console(force_terminal=True)
 
     response = get_response_stream(
-        model, system_prompt + prompt, stream=settings.stream
+        model, system_prompt + prompt, stream=not settings.no_stream
     )
 
     # Process the response and generate script
