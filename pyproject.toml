@@ -12,7 +12,8 @@ requires-python = ">=3.11"
 dependencies = [
     "llm>=0.2.0",
     "click",
-    "rich>=13.0.0"
+    "rich>=13.0.0",
+    "typed-settings>=1.0.0"
 ]
 
 [project.scripts]

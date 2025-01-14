@@ -1,41 +1,47 @@
+import dataclasses
 import subprocess
-import textwrap
-from typing import Iterator
-import llm
-import click
-import tomllib
-import os
 import sys
+import textwrap
+from typing import Iterator, Optional
+
+import click
+import llm
+import typed_settings as ts
 from rich.console import Console
 
 
+@dataclasses.dataclass
+class Settings:
+    max_tokens: Optional[int] = dataclasses.field(
+        default=None,
+        metadata={
+            "typed-settings": {"help": "Maximum number of tokens for the LLM response"}
+        },
+    )
+    show_config: bool = dataclasses.field(
+        default=False,
+        metadata={
+            "typed-settings": {"help": "Show the effective configuration and exit"}
+        },
+    )
+    stream: bool = dataclasses.field(
+        default=False,
+        metadata={"typed-settings": {"help": "Stream the LLM response incrementally"}},
+    )
+
+
 @click.command()
-@click.argument("prompt", nargs=-1)
-@click.option(
-    "--max-tokens",
-    type=int,
-    default=None,
-    help="Maximum number of tokens for the LLM response",
-)
-@click.option(
-    "--show-config",
-    is_flag=True,
-    help="Show the effective configuration and exit",
-)
-@click.option(
-    "--stream",
-    is_flag=True,
-    help="Stream the LLM response incrementally",
-)
-def main(prompt, max_tokens, show_config, stream):
+@ts.click_options(Settings, "dare")
+@click.argument("prompt_parts", nargs=-1, required=True)
+def main(settings: Settings, prompt_parts: tuple[str, ...]):
     """A command line tool to generate Python scripts using LLM.
 
     Args:
-        prompt: The text prompt to send to the LLM
+        prompt_parts: The text prompt parts to send to the LLM
         max_tokens: Maximum number of tokens for the LLM response
         show_config: If True, display current configuration and exit
     """
-    prompt = " ".join(prompt)
+    prompt = " ".join(prompt_parts)
 
     # Check for piped or redirected input
     if not sys.stdin.isatty():
@@ -49,29 +55,14 @@ def main(prompt, max_tokens, show_config, stream):
     # Get the default model
     model = llm.get_model()
 
-    # Read configuration from dare.toml
-    config_path = os.path.join(os.path.expanduser("~"), ".config", "dare", "dare.toml")
-    if os.path.exists(config_path):
-        with open(config_path, "rb") as f:
-            config = tomllib.load(f)
-        config_max_tokens = config.get("max-tokens")
-    else:
-        config_max_tokens = None
-
-    # Use CLI argument if provided, otherwise use config file value
-    max_tokens = max_tokens or config_max_tokens
-
     # Show the effective configuration and exit if --show-config is used
-    if show_config:
-        effective_config = {
-            "max_tokens": max_tokens,
-        }
-        click.echo(f"Effective configuration: {effective_config}")
+    if settings.show_config:
+        click.echo(f"Effective configuration: {dataclasses.asdict(settings)}")
         return
 
     def get_response_stream(model, prompt: str, stream: bool = False) -> Iterator[str]:
         """Helper to get response chunks whether streaming or not."""
-        response = model.prompt(prompt, stream=stream, max_tokens=max_tokens)
+        response = model.prompt(prompt, stream=stream, max_tokens=settings.max_tokens)
         if stream:
             yield from response
         else:
@@ -80,7 +71,9 @@ def main(prompt, max_tokens, show_config, stream):
     # Set up console for output
     console = Console(force_terminal=True)
 
-    response = get_response_stream(model, system_prompt + prompt, stream=stream)
+    response = get_response_stream(
+        model, system_prompt + prompt, stream=settings.stream
+    )
 
     # Initialize variables for streaming
     script_name = None
