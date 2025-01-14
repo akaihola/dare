@@ -6,13 +6,13 @@ from rich.console import Console
 
 
 class ScriptProcessor:
-    def __init__(self, console: Console):
+    def __init__(self, console: Console) -> None:
         self.console = console
-        self.script_name = None
-        self.script_content = []
-        self.in_content = "before"
-        self.buffer = []
-        self.collected_output = []
+        self.script_name: str | None = None
+        self.script_content: list[str] = []
+        self.in_content: str = "before"
+        self.buffer: list[str] = []
+        self.collected_output: list[str] = []
 
     def process_stream(self, response: Iterator[str]) -> None:
         """Process the LLM response stream and extract script content."""
@@ -22,8 +22,8 @@ class ScriptProcessor:
             if "\n" in chunk:
                 lines = "".join(self.buffer).splitlines(True)
                 # Keep the last partial line in buffer
-                *complete_lines, self.buffer = lines
-                self.buffer = [self.buffer]
+                *complete_lines, last_line = lines
+                self.buffer = [last_line]
 
                 for line in complete_lines:
                     self.collected_output.append(line)
@@ -77,4 +77,5 @@ class ScriptProcessor:
             )
             return
 
-        subprocess.run(["uv", "run", self.script_name])
+        if self.script_name:
+            subprocess.run(["uv", "run", self.script_name])

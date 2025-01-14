@@ -13,8 +13,13 @@ dependencies = [
     "llm>=0.2.0",
     "click",
     "rich>=13.0.0",
-    "typed-settings>=1.0.0"
+    "typed-settings>=1.0.0",
+    "types-click",
+    "typing-extensions>=4.0.0"
 ]
+
+[tool.mypy]
+ignore_missing_imports = true
 
 [project.scripts]
 dare = "dare.__main__:main"
@@ -26,6 +31,7 @@ dev = [
     "llm-openrouter",
     "mypy",
     "pytest",
+    "types-click"
 ]
 
 [tool.darker]
