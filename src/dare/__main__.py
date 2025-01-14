@@ -4,6 +4,7 @@ import llm
 import click
 import tomllib
 import os
+import sys
 from rich.console import Console
 from rich.syntax import Syntax
 
@@ -25,7 +26,11 @@ def main(prompt, max_tokens, show_config):
     """A command line tool to generate Python scripts using LLM"""
     prompt = " ".join(prompt)
 
-    # System prompt for the LLM
+    # Check for piped or redirected input
+    if not os.isatty(0):
+        piped_input = sys.stdin.read()
+        if piped_input:
+            prompt += "\n\n" + piped_input
     system_prompt = textwrap.dedent("""
     You write a Python tool as a single .py script file, runnable using `uv run`.
 
