@@ -31,6 +31,7 @@ dev = [
     "llm-openrouter",
     "mypy",
     "pytest",
+    "types-Pygments",
 ]
 
 [tool.darker]
