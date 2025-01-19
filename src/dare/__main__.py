@@ -3,7 +3,7 @@ import subprocess
 import sys
 import textwrap
 from platformdirs import user_config_path
-from typing import Any, Iterator, cast
+from typing import Any, Iterator
 
 import click
 import llm
@@ -94,9 +94,9 @@ def main(settings: Settings, prompt_parts: tuple[str, ...]) -> None:
     # Set up console for output
     console = Console(force_terminal=True)
 
-    response = cast(Iterator[str], get_response_stream(
+    response = get_response_stream(
         model, system_prompt + prompt, stream=not settings.no_stream
-    ))
+    )
 
     # Process the response and generate script
     from dare.script_processor import ScriptProcessor
