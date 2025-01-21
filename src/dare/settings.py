@@ -24,3 +24,7 @@ class Settings:
         default=None,
         metadata=mkhelp("Fix errors in Python script (format: <PY_FILEPATH [ARGS...]>)"),
     )
+    model: Optional[str] = dataclasses.field(
+        default=None,
+        metadata=mkhelp("Name of the LLM model to use"),
+    )

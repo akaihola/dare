@@ -75,8 +75,8 @@ def main(settings: Settings, prompt_parts: tuple[str, ...]) -> None:
                 prompt += "\n\n" + piped_input
     # system_prompt is already set above
 
-    # Get the default model
-    model = llm.get_model()
+    # Get the specified or default model
+    model = llm.get_model(settings.model) if settings.model else llm.get_model()
 
     # Show the effective configuration and exit if --show-config is used
     if settings.show_config:
