@@ -1,3 +1,4 @@
+import dataclasses
 import subprocess
 import sys
 import textwrap
