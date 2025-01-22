@@ -2,11 +2,12 @@ import dataclasses
 import subprocess
 import sys
 import textwrap
+from platformdirs import user_config_path
 from typing import Any, Iterator, cast
 
 import click
 import llm
-from typed_settings import click_options
+import typed_settings as ts
 from rich.console import Console
 
 from dare.settings import Settings
@@ -28,7 +29,14 @@ def run_script_and_capture_error(cmd: str) -> tuple[bool, str]:
 
 
 @click.command()
-@click_options(Settings, "dare")
+@ts.click_options(
+    Settings,
+    [
+        ts.FileLoader(
+            {"*.toml": ts.TomlFormat("dare")}, [user_config_path("dare.toml", "dare")]
+        )
+    ],
+)
 @click.argument("prompt_parts", nargs=-1, required=False)
 def main(settings: Settings, prompt_parts: tuple[str, ...]) -> None:
     """A command line tool to generate Python scripts using LLM.
