@@ -7,7 +7,8 @@ The script can include dependencies on libraries such as Click.
 If they do, those dependencies are included in a dependencies list
 inside a PEP 723 inline script metadata block.
 The script is enclosed in a Markdown code block opened with the language identifier
-and the script file name, e.g. ``` py title="my_script.py"
+and the script file name, e.g.
+``` py title="my_script.py"
 
 The script must not accept any command line arguments.
 If the script needs assets, prefer to include the data in the script itself
