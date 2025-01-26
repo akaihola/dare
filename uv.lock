@@ -73,6 +73,7 @@ source = { editable = "." }
 dependencies = [
     { name = "click" },
     { name = "llm" },
+    { name = "platformdirs" },
     { name = "rich" },
     { name = "typed-settings" },
     { name = "typing-extensions" },
@@ -85,6 +86,7 @@ dev = [
     { name = "llm-openrouter" },
     { name = "mypy" },
     { name = "pytest" },
+    { name = "typed-settings" },
     { name = "types-pygments" },
 ]
 
@@ -92,6 +94,7 @@ dev = [
 requires-dist = [
     { name = "click", specifier = ">=8.0" },
     { name = "llm", specifier = ">=0.2.0" },
+    { name = "platformdirs" },
     { name = "rich", specifier = ">=13.0.0" },
     { name = "typed-settings", specifier = ">=1.0.0" },
     { name = "typing-extensions", specifier = ">=4.0.0" },
@@ -104,6 +107,7 @@ dev = [
     { name = "llm-openrouter" },
     { name = "mypy" },
     { name = "pytest" },
+    { name = "typed-settings", directory = "../../repos/python/typed-settings" },
     { name = "types-pygments" },
 ]
 
@@ -382,6 +386,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/f4/b1/b422acd212ad7eedddaf7981eee6e5de085154ff726459cf2da7c5a184c1/pip-24.3.1.tar.gz", hash = "sha256:ebcb60557f2aefabc2e0f918751cd24ea0d56d8ec5445fe1807f1d2109660b99", size = 1931073 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ef/7d/500c9ad20238fcfcb4cb9243eede163594d7020ce87bd9610c9e02771876/pip-24.3.1-py3-none-any.whl", hash = "sha256:3790624780082365f47549d032f3770eeb2b1e8bd1f7b2e02dace1afa361b4ed", size = 1822182 },
+]
+
+[[package]]
+name = "platformdirs"
+version = "4.3.6"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/13/fc/128cc9cb8f03208bdbf93d3aa862e16d376844a14f9a0ce5cf4507372de4/platformdirs-4.3.6.tar.gz", hash = "sha256:357fb2acbc885b0419afd3ce3ed34564c13c9b95c89360cd9563f73aa5e2b907", size = 21302 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3c/a6/bc1012356d8ece4d66dd75c4b9fc6c1f6650ddd5991e421177d9f8f671be/platformdirs-4.3.6-py3-none-any.whl", hash = "sha256:73e575e1408ab8103900836b97580d5307456908a03e92031bab39e4554cc3fb", size = 18439 },
 ]
 
 [[package]]
@@ -668,11 +681,65 @@ wheels = [
 
 [[package]]
 name = "typed-settings"
-version = "24.6.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/c0/91/f39cff1a6eb43ba5d8e7eb810405b0a7abed7b7033f7725a09796c625547/typed_settings-24.6.0.tar.gz", hash = "sha256:9a5595de33f80452a2038e018bc45508fffc238a8752f08f5c03dc8e7bc0d1e2", size = 29469194 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d6/65/659c1bebd863edc9184715fd1cf2475926cead71d83535d980577bfa2439/typed_settings-24.6.0-py3-none-any.whl", hash = "sha256:22221598a821395700beaafd8eab0e1bc596b394767aa37e0926c5f74d0b6a62", size = 58394 },
+version = "24.6.1.dev9"
+source = { directory = "../../repos/python/typed-settings" }
+
+[package.metadata]
+requires-dist = [
+    { name = "attrs", marker = "extra == 'all'", specifier = ">=23.1" },
+    { name = "attrs", marker = "extra == 'attrs'", specifier = ">=23.1" },
+    { name = "cattrs", marker = "extra == 'all'", specifier = ">=24.1" },
+    { name = "cattrs", marker = "extra == 'cattrs'", specifier = ">=24.1" },
+    { name = "click", marker = "extra == 'all'", specifier = ">=7" },
+    { name = "click", marker = "extra == 'click'", specifier = ">=7" },
+    { name = "click", marker = "extra == 'option-groups'", specifier = ">=7" },
+    { name = "click-option-group", marker = "extra == 'all'" },
+    { name = "click-option-group", marker = "extra == 'option-groups'" },
+    { name = "jinja2", marker = "extra == 'all'" },
+    { name = "jinja2", marker = "extra == 'jinja'" },
+    { name = "pydantic", marker = "extra == 'all'", specifier = ">=2" },
+    { name = "pydantic", marker = "extra == 'pydantic'", specifier = ">=2" },
+    { name = "tomli", marker = "python_full_version < '3.11'", specifier = ">=2" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "coverage", extras = ["toml"] },
+    { name = "furo" },
+    { name = "hypothesis" },
+    { name = "mypy" },
+    { name = "myst-parser" },
+    { name = "nox" },
+    { name = "pip-audit" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "rich-click" },
+    { name = "ruff" },
+    { name = "sphinx" },
+    { name = "sphinx-copybutton" },
+    { name = "sphinx-inline-tabs" },
+    { name = "sybil" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
+]
+docs = [
+    { name = "furo" },
+    { name = "myst-parser" },
+    { name = "sphinx" },
+    { name = "sphinx-copybutton" },
+    { name = "sphinx-inline-tabs" },
+]
+lint = [
+    { name = "mypy" },
+    { name = "ruff" },
+]
+test = [
+    { name = "coverage", extras = ["toml"] },
+    { name = "hypothesis" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "rich-click" },
+    { name = "sybil" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
 
 [[package]]

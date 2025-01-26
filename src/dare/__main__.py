@@ -31,11 +31,7 @@ def run_script_and_capture_error(cmd: str) -> tuple[bool, str]:
 @click.command()
 @ts.click_options(
     Settings,
-    [
-        ts.FileLoader(
-            {"*.toml": ts.TomlFormat("dare")}, [user_config_path("dare.toml", "dare")]
-        )
-    ],
+    ts.default_loaders("dare", [user_config_path("dare.toml")]),
 )
 @click.argument("prompt_parts", nargs=-1, required=False)
 def main(settings: Settings, prompt_parts: tuple[str, ...]) -> None:
