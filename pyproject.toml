@@ -44,6 +44,7 @@ src = ["src"]
 lint = [
     "ruff check --output-format=concise",
     "mypy",
+    "pydocstyle",
 ]
 revision = "main..."
 src = ["src"]
