@@ -1,7 +1,9 @@
-import click
+import re
 import subprocess
 import sys
 from typing import Iterator
+
+import click
 from rich.console import Console
 
 
@@ -28,11 +30,9 @@ class ScriptProcessor:
                 for line in complete_lines:
                     self.collected_output.append(line)
                     self.console.print(line, end="")
-                    if (
-                        line.startswith('``` py title="')
-                        and self.in_content == "before"
-                    ):
-                        self.script_name = line.split('"')[1]
+                    match = re.match(r'^```\s?py\s+title="([^"]+)"', line)
+                    if match and self.in_content == "before":
+                        self.script_name = match.group(1)
                         self.in_content = "script"
                         self.script_content = []
                     elif line.startswith("```") and self.in_content == "script":
