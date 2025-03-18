@@ -27,7 +27,7 @@ dare = "dare.__main__:main"
 [dependency-groups]
 dev = [
     "darker @ git+https://github.com/akaihola/darker.git@master",
-    "graylint @ git+https://github.com/akaihola/graylint.git@darkgraylib-2.2.0",
+    "graylint @ git+https://github.com/akaihola/graylint.git@main",
     "llm-openrouter",
     "mypy",
     "pytest",
