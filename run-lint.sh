@@ -2,9 +2,8 @@
 
 errors=0
 
-ruff check --fix --quiet src
-ruff format --quiet src
-ruff check --fix src || errors=$?
-ruff format src || errors=$?
+command -v ruff >/dev/null || with_ruff="--with ruff"
+uvx --from 'git+https://github.com/akaihola/darker@fix-packaging' --with isort ${with_ruff} darker . || errors=$?
+uvx --with mypy --with pydocstyle --with '.' ${with_ruff} graylint . || errors=$?
 
 exit $errors
