@@ -36,11 +36,13 @@ click.echo("This works.")
 </example response>
 """
 
-SCRIPT_FIX = SCRIPT_GENERATION + """
+SCRIPT_FIX = (
+    SCRIPT_GENERATION
+    + """
 The Python script you previously created has a bug.
 Both the script and the error message are attached below.
 Think step by step to find the reason for the error.
 Think step by step to come up with a solution.
 Fix the script and output the corrected version.
 """
-
+)

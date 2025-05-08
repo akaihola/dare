@@ -22,7 +22,9 @@ class Settings:
     )
     fix: Optional[str] = dataclasses.field(
         default=None,
-        metadata=mkhelp("Fix errors in Python script (format: <PY_FILEPATH [ARGS...]>)"),
+        metadata=mkhelp(
+            "Fix errors in Python script (format: <PY_FILEPATH [ARGS...]>)"
+        ),
     )
     model: Optional[str] = dataclasses.field(
         default=None,

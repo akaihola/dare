@@ -82,7 +82,9 @@ def main(settings: Settings, prompt_parts: tuple[str, ...]) -> None:
     # Get the specified or default model
     model = llm.get_model(settings.model) if settings.model else llm.get_model()
 
-    def get_response_stream(model: Any, prompt: str, stream: bool = False) -> Iterator[str]:
+    def get_response_stream(
+        model: Any, prompt: str, stream: bool = False
+    ) -> Iterator[str]:
         """Helper to get response chunks whether streaming or not."""
         response = model.prompt(prompt, stream=stream, max_tokens=settings.max_tokens)
         if stream:
