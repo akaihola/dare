@@ -62,108 +62,57 @@ def parse_config_output(output):
     return ast.literal_eval(dict_str)
 
 
-@pytest.mark.skipif(platform.system() != "Linux", reason="Linux-specific test")
-def test_config_linux(temp_config_setup, monkeypatch):
-    """Test that configuration is read from the correct location on Linux."""
-    tmp_path, config_file = temp_config_setup
+@pytest.fixture
+def platform_config(request, tmp_path, monkeypatch):
+    """Platform-specific configuration fixture."""
+    platform_name = request.param
 
-    # Set HOME environment variable to our temporary directory
-    monkeypatch.setenv("HOME", str(tmp_path))
-    print(f"\nSet HOME to: {tmp_path}")
+    if platform_name == "Linux":
+        # Linux setup
+        monkeypatch.setenv("HOME", str(tmp_path))
+        print(f"\nSet HOME to: {tmp_path}")
+    elif platform_name == "Darwin":
+        # macOS setup
+        monkeypatch.setenv("HOME", str(tmp_path))
+        print(f"\nSet HOME to: {tmp_path}")
+    elif platform_name == "Windows":
+        # Windows setup
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
+        print(f"\nSet USERPROFILE to: {tmp_path}")
 
-    # Get the config path that will be used by platformdirs
-    config_dir = user_config_path("dare", appauthor=False)
-    print(f"Config directory: {config_dir}")
+        # Also set APPDATA for completeness
+        appdata_dir = tmp_path / "AppData" / "Roaming"
+        appdata_dir.mkdir(parents=True, exist_ok=True)
+        monkeypatch.setenv("APPDATA", str(appdata_dir))
+        print(f"Set APPDATA to: {appdata_dir}")
 
-    # Create the expected config directory structure
-    os.makedirs(config_dir, exist_ok=True)
+        # Also set LOCAL_APPDATA for completeness
+        local_appdata_dir = tmp_path / "AppData" / "Local"
+        local_appdata_dir.mkdir(parents=True, exist_ok=True)
+        monkeypatch.setenv("LOCAL_APPDATA", str(local_appdata_dir))
+        print(f"Set LOCAL_APPDATA to: {local_appdata_dir}")
 
-    # Create the configuration file in the expected location
-    expected_config_file = config_dir / "dare.toml"
-    with open(config_file, "r") as src, open(expected_config_file, "w") as dst:
-        dst.write(src.read())
-
-    print(f"Created config file at: {expected_config_file}")
-
-    importlib.reload(dare.__main__)
-
-    # Run the command with --show-config
-    runner = CliRunner()
-    result = runner.invoke(dare.__main__.main, ["--show-config"])
-
-    # Check that the command succeeded
-    assert result.exit_code == 0
-
-    # Parse the configuration dictionary from the output
-    config_dict = parse_config_output(result.output)
-
-    # Check that the output contains our configuration values
-    assert config_dict["max_tokens"] == 1000
-    assert config_dict["no_stream"] is True
-    assert config_dict["model"] == "test-model"
+    return {"platform_name": platform_name, "tmp_path": tmp_path}
 
 
-@pytest.mark.skipif(platform.system() != "Darwin", reason="macOS-specific test")
-def test_config_macos(temp_config_setup, monkeypatch):
-    """Test that configuration is read from the correct location on macOS."""
-    tmp_path, config_file = temp_config_setup
+@pytest.mark.parametrize(
+    "platform_config",
+    [
+        pytest.param("Linux", id="linux"),
+        pytest.param("Darwin", id="macos"),
+        pytest.param("Windows", id="windows"),
+    ],
+    indirect=True,
+)
+def test_config_platform(platform_config, temp_config_setup):
+    """Test that configuration is read from the correct location on different platforms."""
+    platform_name = platform_config["platform_name"]
 
-    # Set HOME environment variable to our temporary directory
-    monkeypatch.setenv("HOME", str(tmp_path))
-    print(f"\nSet HOME to: {tmp_path}")
+    # Skip if not running on the specified platform
+    if platform.system() != platform_name:
+        pytest.skip(f"Test only runs on {platform_name}")
 
-    # Get the config path that will be used by platformdirs
-    config_dir = user_config_path("dare", appauthor=False)
-    print(f"Config directory: {config_dir}")
-
-    # Create the expected config directory structure
-    os.makedirs(config_dir, exist_ok=True)
-
-    # Create the configuration file in the expected location
-    expected_config_file = config_dir / "dare.toml"
-    with open(config_file, "r") as src, open(expected_config_file, "w") as dst:
-        dst.write(src.read())
-
-    print(f"Created config file at: {expected_config_file}")
-
-    importlib.reload(dare.__main__)
-
-    # Run the command with --show-config
-    runner = CliRunner()
-    result = runner.invoke(dare.__main__.main, ["--show-config"])
-
-    # Check that the command succeeded
-    assert result.exit_code == 0
-
-    # Parse the configuration dictionary from the output
-    config_dict = parse_config_output(result.output)
-
-    # Check that the output contains our configuration values
-    assert config_dict["max_tokens"] == 1000
-    assert config_dict["no_stream"] is True
-    assert config_dict["model"] == "test-model"
-
-
-@pytest.mark.skipif(platform.system() != "Windows", reason="Windows-specific test")
-def test_config_windows(temp_config_setup, monkeypatch):
-    """Test that configuration is read from the correct location on Windows."""
-    tmp_path, config_file = temp_config_setup
-
-    # Set USERPROFILE environment variable to our temporary directory
-    monkeypatch.setenv("USERPROFILE", str(tmp_path))
-    print(f"\nSet USERPROFILE to: {tmp_path}")
-
-    # Also set APPDATA for completeness
-    appdata_dir = tmp_path / "AppData" / "Roaming"
-    appdata_dir.mkdir(parents=True, exist_ok=True)
-    monkeypatch.setenv("APPDATA", str(appdata_dir))
-    print(f"Set APPDATA to: {appdata_dir}")
-
-    # Also set LOCAL_APPDATA for completeness
-    local_appdata_dir = tmp_path / "AppData" / "Local"
-    local_appdata_dir.mkdir(parents=True, exist_ok=True)
-    monkeypatch.setenv("LOCAL_APPDATA", str(local_appdata_dir))
-    print(f"Set LOCAL_APPDATA to: {local_appdata_dir}")
+    _, config_file = temp_config_setup
 
     # Get the config path that will be used by platformdirs
     config_dir = user_config_path("dare", appauthor=False)
